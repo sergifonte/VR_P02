@@ -1,25 +1,27 @@
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class ColorFilterController : MonoBehaviour
 {
-    // Drag your "Mat_Blindness" here in the Inspector
-    public Material blindnessMaterial; 
+    public RawImage filterImage; // Arrossega la Raw Image aquí
 
-    // This function will be called by the Dropdown
     public void SetBlindnessType(int index)
     {
-        if (blindnessMaterial != null)
+        // Apliquem un color amb transparència per simular el filtre
+        switch(index)
         {
-            // "type" must match the variable name in your Shader
-            blindnessMaterial.SetInt("type", index);
+            case 0: // Normal
+                filterImage.color = new Color(0, 0, 0, 0); // Transparent
+                break;
+            case 1: // Protanopia (Filtre groguenc/marró)
+                filterImage.color = new Color(0.7f, 0.6f, 0.2f, 0.3f); 
+                break;
+            case 2: // Deuteranopia (Filtre verdós/gris)
+                filterImage.color = new Color(0.5f, 0.5f, 0.3f, 0.3f);
+                break;
+            case 3: // Tritanopia (Filtre rosat)
+                filterImage.color = new Color(0.8f, 0.2f, 0.2f, 0.2f);
+                break;
         }
-    }
-
-    // Ensure it starts as "Normal" (index 0)
-    void Start()
-    {
-        if (blindnessMaterial != null)
-            blindnessMaterial.SetInt("type", 0);
     }
 }

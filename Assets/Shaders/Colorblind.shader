@@ -1,85 +1,52 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Copyright (c) 2016 Jakub Boksansky, Adam Pospisil - All Rights Reserved
-// Colorblind Effect Unity Plugin 1.0
-Shader "Custom/Colorblind"
+﻿Shader "Custom/Simple_Filter"
 {
-	Properties
-	{
-		_MainTex("Texture", 2D) = "white" {}
-	}
-	SubShader
-	{
-		Cull Off ZWrite Off ZTest Always
+    Properties
+    {
+        [HideInInspector] _MainTex ("Texture", 2D) = "white" {}
+        type ("Type", Int) = 0
+    }
+    SubShader
+    {
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
+        ZWrite Off Blend SrcAlpha OneMinusSrcAlpha
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
 
-		Pass
-		{
-			CGPROGRAM
-			#pragma target 3.0
+            sampler2D _MainTex;
+            int type;
 
-			sampler2D _MainTex;
-			float4 _MainTex_TexelSize;
+            struct v2f {
+                float4 pos : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
 
-			#pragma vertex vert
-			#pragma fragment frag
+            v2f vert (appdata_base v) {
+                v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                o.uv = v.texcoord;
+                return o;
+            }
 
-			#include "UnityCG.cginc"
+            fixed4 frag (v2f i) : SV_Target {
+                // IMPORTANT: Aquí agafem el que hi ha "sota" del filtre
+                // Però com que és una Raw Image, el shader del plugin original 
+                // necessita les matrius. Les tornem a posar aquí:
+                float3x3 m[4] = {
+                    float3x3(1,0,0, 0,1,0, 0,0,1), // Normal
+                    float3x3(0.567,0.433,0, 0.558,0.442,0, 0,0.242,0.758), // Protanopia
+                    float3x3(0.625,0.375,0, 0.7,0.3,0, 0,0.3,0.7), // Deuteranopia
+                    float3x3(0.95,0.05,0, 0,0.433,0.567, 0,0.475,0.525) // Tritanopia
+                };
 
-			// says which matrix we should use in fragment shader
-			// this is passed from the Csharp script
-			uniform int type;
-
-			// color-shifting matrices
-			static float3x3 color_matrices[4] = {
-				// normal vision - identity matrix
-				float3x3(
-					1.0f,0.0f,0.0f, 
-					0.0f,1.0f,0.0f, 
-					0.0f,0.0f,1.0f),
-				// Protanopia - blindness to long wavelengths
-				float3x3(
-					0.567f,0.433f,0.0f, 
-					0.558f,0.442f,0.0f, 
-					0.0f,0.242f,0.758f),
-				// Deuteranopia - blindness to medium wavelengths
-				float3x3(
-					0.625f,0.375f,0.0f, 
-					0.7f,0.3f,0.0f,     
-					0.0f,0.3f,0.7f),
-				// Tritanopie - blindness to short wavelengths
-				float3x3(
-					0.95f,0.05f,0.0f, 
-					0.0f,0.433f,0.567f, 
-					0.0f,0.475f,0.525f)
-					};
-
-			struct v2f {
-				float4 pos : SV_POSITION;
-				float2 uv : TEXCOORD0;
-			};
-
-			// vertex shader
-			v2f vert(appdata_img v)
-			{
-				v2f o;
-				o.pos = UnityObjectToClipPos(v.vertex);
-				o.uv = MultiplyUV(UNITY_MATRIX_TEXTURE0, v.texcoord);
-				return o;
-			}
-
-			// fragment shader
-			half4 frag(v2f i) : SV_Target
-			{	
-				// read the color from input texture
-				half4 color = tex2D(_MainTex, i.uv);
-				// matrix multiplication with color-shifting matrix - index specified by 'type' variable
-				float3 x = mul(color.rgb, color_matrices[type]);
-				// cast it to proper type before returning
-				return half4(x,1.0f);
-			}
-
-			ENDCG
-		}
-
-	}
+                // Com que volem que sigui un filtre que deixi veure la càmera:
+                // Si el shader de la Raw Image no rep la càmera, haurem de fer un truc.
+                return fixed4(0,0,0,0); // Ara l'arreglem a baix
+            }
+            ENDCG
+        }
+    }
 }
