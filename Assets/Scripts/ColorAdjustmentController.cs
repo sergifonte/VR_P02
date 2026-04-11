@@ -5,46 +5,54 @@ using UnityEngine.Rendering.Universal;
 public class ColorAdjustmentController : MonoBehaviour
 {
     public Volume globalVolume; 
-    private ColorAdjustments colorAdjustments;
+
+    // Aquí arrossegarem les textures "simulate" de GitHub
+    public Texture2D lutProtanopia;
+    public Texture2D lutDeuteranopia;
+    public Texture2D lutTritanopia;
+
+    private ColorLookup colorLookup;
 
     void Start()
     {
-        // Intentem agafar el perfil del Volume
-        if (globalVolume != null && globalVolume.profile.TryGet(out colorAdjustments))
+        // Busquem l'efecte Color Lookup dins del perfil del Global Volume
+        if (globalVolume != null && globalVolume.profile.TryGet(out colorLookup))
         {
-            Debug.Log("Filtre trobat i preparat!");
+            Debug.Log("Sistema de LUTs preparat!");
+            // Comencem amb el filtre apagat (Visió Normal)
+            colorLookup.active = false;
         }
         else
         {
-            Debug.LogError("Error: No s'ha trobat el component Color Adjustments al Global Volume!");
+            Debug.LogError("Error: No s'ha trobat l'override 'Color Lookup' al Global Volume. Afegeix-lo primer!");
         }
     }
 
     public void SetFilter(int index)
     {
-        Debug.Log("Has seleccionat l'opció número: " + index);
+        if (colorLookup == null) return;
 
-        if (colorAdjustments == null) return;
-
-        colorAdjustments.colorFilter.overrideState = true;
+        Debug.Log("Canviant a mode: " + index);
 
         switch (index)
         {
             case 0: // Normal
-                colorAdjustments.colorFilter.value = Color.white;
-                colorAdjustments.saturation.value = 0; // Saturació normal
+                colorLookup.active = false; // Simplement apaguem el filtre
                 break;
-            case 1: // Protanopia (Molt més groguenc/gris)
-                colorAdjustments.colorFilter.value = new Color(0.6f, 0.55f, 0.3f); 
-                colorAdjustments.saturation.value = -20; // Baixem la saturació per fer-ho més gris
+
+            case 1: // Protanopia
+                colorLookup.active = true;
+                colorLookup.texture.value = lutProtanopia;
                 break;
-            case 2: // Deuteranopia (Molt més gris/verdós apagat)
-                colorAdjustments.colorFilter.value = new Color(0.5f, 0.5f, 0.45f);
-                colorAdjustments.saturation.value = -30;
+
+            case 2: // Deuteranopia
+                colorLookup.active = true;
+                colorLookup.texture.value = lutDeuteranopia;
                 break;
-            case 3: // Tritanopia (Molt més cian/rosa)
-                colorAdjustments.colorFilter.value = new Color(0.9f, 0.4f, 0.6f);
-                colorAdjustments.saturation.value = -10;
+
+            case 3: // Tritanopia
+                colorLookup.active = true;
+                colorLookup.texture.value = lutTritanopia;
                 break;
         }
     }
