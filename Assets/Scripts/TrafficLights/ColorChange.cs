@@ -1,21 +1,22 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 
 public class ColorChange : MonoBehaviour
 {
-    public Material trafficLights;
-    //public Material[] colors = { }; 
-    public Material red;
-    public Material green;
+    public Material redMat;
+    public Material yellowMat;
+    public Material greenMat;
 
     private Renderer rend;
 
-    private bool isRed;
+    public enum LightState { Yellow, Red, Green }
+    public LightState currentState;
 
+    // To track what player should do
     public enum ExpectedAction { None, Brake, Accelerate }
-    public ExpectedAction expectedAction;
+    public ExpectedAction expectedAction = ExpectedAction.None;
 
     void Start()
     {
@@ -27,25 +28,54 @@ public class ColorChange : MonoBehaviour
     {
         while (true)
         {
-            isRed = !isRed;
+            // YELLOW (base state)
+            SetLight(LightState.Yellow);
+            expectedAction = ExpectedAction.None;
+            yield return new WaitForSeconds(2f);
 
-            if (isRed)
+            // RANDOM: go to Red or Green
+            bool goRed = Random.value > 0.5f;
+
+            if (goRed)
             {
-                rend.material = red;
+                // YELLOW → RED
+                SetLight(LightState.Red);
                 expectedAction = ExpectedAction.Brake;
-                Debug.Log("RED --> Press Brake");
             }
             else
             {
-                rend.material = green;
+                // YELLOW → GREEN
+                SetLight(LightState.Green);
                 expectedAction = ExpectedAction.Accelerate;
-                Debug.Log("GREEN --> Press Accelerator");
             }
 
+            // Give player time to react
             yield return new WaitForSeconds(2f);
+
+            // Reset expectation after reaction window
+            expectedAction = ExpectedAction.None;
         }
     }
 
+    void SetLight(LightState state)
+    {
+        currentState = state;
+
+        switch (state)
+        {
+            case LightState.Red:
+                rend.material = redMat;
+                break;
+            case LightState.Yellow:
+                rend.material = yellowMat;
+                break;
+            case LightState.Green:
+                rend.material = greenMat;
+                break;
+        }
+    }
+
+    // Called by UI buttons
     public void OnBrakePressed()
     {
         if (expectedAction == ExpectedAction.Brake)
@@ -54,7 +84,7 @@ public class ColorChange : MonoBehaviour
         }
         else
         {
-            Debug.Log("Wrong!");
+            Debug.Log("Wrong action!");
         }
     }
 
@@ -66,7 +96,7 @@ public class ColorChange : MonoBehaviour
         }
         else
         {
-            Debug.Log("Wrong!");
+            Debug.Log("Wrong action!");
         }
     }
 }

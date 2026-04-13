@@ -1595,9 +1595,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92557ff1750f79e4da2490f5dbe18dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trafficLights: {fileID: 2100000, guid: 3dedbbf427e269b45844df786ef902d4, type: 2}
-  red: {fileID: 0}
-  green: {fileID: 0}
+  redMat: {fileID: 2100000, guid: 618e5db425556124899e82d5b4d0a479, type: 2}
+  yellowMat: {fileID: 2100000, guid: 5885e5fdbcf6cd441964cafc44467de2, type: 2}
+  greenMat: {fileID: 2100000, guid: b469a2f83560da548b4f98bd7e619caf, type: 2}
+  currentState: 0
   expectedAction: 0
 --- !u!1 &423627862
 GameObject:
