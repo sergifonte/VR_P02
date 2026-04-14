@@ -232,7 +232,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 49175213}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 362163541}
+        m_TargetAssemblyTypeName: ColorChange, Assembly-CSharp
+        m_MethodName: OnBrakePressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &49175213
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1875,7 +1887,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100000, guid: 6813ce4b94f3e8a4bad80acc0ac5845f, type: 3}
       propertyPath: m_Name
-      value: TB_CITY_Prop_TrafficLight_VSet_Black
+      value: TrafficLightWork
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 6813ce4b94f3e8a4bad80acc0ac5845f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6266,7 +6278,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1932192477}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 362163541}
+        m_TargetAssemblyTypeName: ColorChange, Assembly-CSharp
+        m_MethodName: OnAcceleratePressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1932192477
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -28,31 +28,31 @@ public class ColorChange : MonoBehaviour
     {
         while (true)
         {
-            // YELLOW (base state)
+            //groc per defecte
             SetLight(LightState.Yellow);
             expectedAction = ExpectedAction.None;
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(10f);
 
-            // RANDOM: go to Red or Green
+            //es tria vermell o verd de manera random abans de tornar a groc
             bool goRed = Random.value > 0.5f;
 
             if (goRed)
             {
-                // YELLOW → RED
+                //groc a vermell
                 SetLight(LightState.Red);
                 expectedAction = ExpectedAction.Brake;
             }
             else
             {
-                // YELLOW → GREEN
+                //groc a verd
                 SetLight(LightState.Green);
                 expectedAction = ExpectedAction.Accelerate;
             }
 
-            // Give player time to react
-            yield return new WaitForSeconds(2f);
+            //temps perque reaccioni el jugador
+            yield return new WaitForSeconds(3f);
 
-            // Reset expectation after reaction window
+            //quan s'acaba el temps de reacció i torna a groc es d'eixa d'esperar una acció
             expectedAction = ExpectedAction.None;
         }
     }
@@ -75,7 +75,7 @@ public class ColorChange : MonoBehaviour
         }
     }
 
-    // Called by UI buttons
+    //aixo es crida amb els pedals a la ui
     public void OnBrakePressed()
     {
         if (expectedAction == ExpectedAction.Brake)
