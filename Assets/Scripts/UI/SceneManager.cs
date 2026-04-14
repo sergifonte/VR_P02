@@ -1,21 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.ARFoundation;
+
 
 public class LinkingScene : MonoBehaviour
 {
-    void Start()
-    {
-        Canvas canvas = GetComponent<Canvas>();
-
-        if (canvas != null && canvas.worldCamera == null)
-        {
-            canvas.worldCamera = Camera.main;
-        }
-    }
 
     public void ChangeTo()
     {
-UnityEngine.SceneManagement.SceneManager.LoadScene(1);    }
+        LoaderUtility.Deinitialize();
+
+        UnityEngine.SceneManagement.SceneManager.LoadScene(1);    }
 
     public void Exit()
     {

@@ -1,20 +1,14 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.ARFoundation;
 
 public class ManagerTrafficLight : MonoBehaviour
 {
-    void Start()
-    {
-        Canvas canvas = GetComponent<Canvas>();
-
-        if (canvas != null && canvas.worldCamera == null)
-        {
-            canvas.worldCamera = Camera.main;
-        }
-    }
+    
 
     public void ReturnTo()
     {
+        LoaderUtility.Deinitialize();
         UnityEngine.SceneManagement.SceneManager.LoadScene(3);
     }
 
