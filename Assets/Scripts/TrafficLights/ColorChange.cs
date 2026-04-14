@@ -1,59 +1,115 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
 
 public class ColorChange : MonoBehaviour
 {
+    [Header("Traffic Light Materials")]
     public Material redMat;
     public Material yellowMat;
     public Material greenMat;
-
     private Renderer rend;
 
     public enum LightState { Yellow, Red, Green }
     public LightState currentState;
 
-    // To track what player should do
     public enum ExpectedAction { None, Brake, Accelerate }
     public ExpectedAction expectedAction = ExpectedAction.None;
 
+    [Header("UI Elements")]
+    public TextMeshProUGUI textTimer;
+    public TextMeshProUGUI textInstructions;
+    public TextMeshProUGUI textLives;
+    public GameObject panelGameOver;
+    public TextMeshProUGUI textGameOverMessage;
+    public Button btnRetry;
+    public Button btnBack;
+
+    [Header("Game Setup")]
+    private int lives = 3;
+    private float timeRemaining = 30f;
+    private bool gameActive = true;
+    private bool actionTakenThisCycle = false;
+
     void Start()
     {
+        Time.timeScale = 1f;
         rend = GetComponent<Renderer>();
+
+        if (panelGameOver != null) panelGameOver.SetActive(false);
+
+        if (btnRetry != null) btnRetry.onClick.AddListener(RestartGame);
+        if (btnBack != null) btnBack.onClick.AddListener(() => SceneManager.LoadScene("MainScene"));
+
+        if (textInstructions != null)
+            textInstructions.text = "Press GAS when you see the green light turn on, press BRAKE when you see the red light turn on.";
+
+        UpdateLivesText();
         StartCoroutine(LightCycle());
+    }
+
+    void Update()
+    {
+        if (!gameActive) return;
+
+        timeRemaining -= Time.deltaTime;
+
+        if (textTimer != null)
+            textTimer.text = "Time: " + timeRemaining.ToString("F1") + "s";
+
+        if (timeRemaining <= 0)
+        {
+            timeRemaining = 0;
+            WinGame();
+        }
     }
 
     IEnumerator LightCycle()
     {
-        while (true)
+        while (gameActive)
         {
-            //groc per defecte
+            // --- YELLOW STATE ---
             SetLight(LightState.Yellow);
-            expectedAction = ExpectedAction.None;
-            yield return new WaitForSeconds(10f);
+            expectedAction = ExpectedAction.Brake;
+            actionTakenThisCycle = false;
 
-            //es tria vermell o verd de manera random abans de tornar a groc
+            float yellowTime = Random.Range(2f, 4f);
+            yield return new WaitForSeconds(yellowTime);
+
+            if (gameActive && !actionTakenThisCycle)
+            {
+                Debug.Log("Too slow on yellow!");
+                LoseLife();
+            }
+
+            if (!gameActive) break;
+
+            // --- RED OR GREEN STATE ---
             bool goRed = Random.value > 0.5f;
 
             if (goRed)
             {
-                //groc a vermell
                 SetLight(LightState.Red);
                 expectedAction = ExpectedAction.Brake;
             }
             else
             {
-                //groc a verd
                 SetLight(LightState.Green);
                 expectedAction = ExpectedAction.Accelerate;
             }
 
-            //temps perque reaccioni el jugador
+            actionTakenThisCycle = false;
+
             yield return new WaitForSeconds(3f);
 
-            //quan s'acaba el temps de reacció i torna a groc es d'eixa d'esperar una acció
-            expectedAction = ExpectedAction.None;
+            if (gameActive && !actionTakenThisCycle)
+            {
+                Debug.Log("Too slow on red/green!");
+                LoseLife();
+            }
         }
     }
 
@@ -75,9 +131,12 @@ public class ColorChange : MonoBehaviour
         }
     }
 
-    //aixo es crida amb els pedals a la ui
     public void OnBrakePressed()
     {
+        if (!gameActive || actionTakenThisCycle) return;
+
+        actionTakenThisCycle = true;
+
         if (expectedAction == ExpectedAction.Brake)
         {
             Debug.Log("Correct: Brake!");
@@ -85,11 +144,16 @@ public class ColorChange : MonoBehaviour
         else
         {
             Debug.Log("Wrong action!");
+            LoseLife();
         }
     }
 
     public void OnAcceleratePressed()
     {
+        if (!gameActive || actionTakenThisCycle) return;
+
+        actionTakenThisCycle = true;
+
         if (expectedAction == ExpectedAction.Accelerate)
         {
             Debug.Log("Correct: Accelerate!");
@@ -97,6 +161,52 @@ public class ColorChange : MonoBehaviour
         else
         {
             Debug.Log("Wrong action!");
+            LoseLife();
         }
+    }
+
+    void LoseLife()
+    {
+        lives--;
+        UpdateLivesText();
+
+        if (lives <= 0)
+        {
+            LoseGame();
+        }
+    }
+
+    void UpdateLivesText()
+    {
+        if (textLives != null)
+            textLives.text = "Lives: " + lives;
+    }
+
+    void LoseGame()
+    {
+        gameActive = false;
+        StopAllCoroutines();
+
+        if (textGameOverMessage != null) textGameOverMessage.text = "GAME OVER";
+        if (textInstructions != null) textInstructions.text = "";
+
+        if (panelGameOver != null) panelGameOver.SetActive(true);
+    }
+
+    void WinGame()
+    {
+        gameActive = false;
+        StopAllCoroutines();
+        SetLight(LightState.Yellow);
+
+        if (textGameOverMessage != null) textGameOverMessage.text = "YOU WIN!";
+        if (textInstructions != null) textInstructions.text = "";
+
+        if (panelGameOver != null) panelGameOver.SetActive(true);
+    }
+
+    void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

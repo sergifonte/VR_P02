@@ -10,7 +10,7 @@ public class GameManagerAR : MonoBehaviour
     public TextMeshProUGUI textInstructions;
     public TextMeshProUGUI textLives;
     public GameObject panelGameOver;
-    public TextMeshProUGUI textGameOverMessage; // Per dir si has guanyat o perdut
+    public TextMeshProUGUI textGameOverMessage;
     public Button btnRetry;
     public Button btnBack;
 
