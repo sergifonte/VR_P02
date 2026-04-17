@@ -18,15 +18,16 @@ While most apps try to "fix" color blindness, our goal is to **educate**. We wan
 * **Design:** Figma (UI/UX)
 * **Assets:** Custom LUTs by Andrew Willmot & Colorblind Shader plugins.
 
-## How to Run
-1. Clone the repository.
-2. Open in Unity 2022.3+.
-3. Ensure **ARCore** is enabled in XR Plug-in Management.
-4. Build for **Android** (minimum API level 24).
+## How to Install on Android
+1. **Download the APK:** Get the `HiddenHues.apk` from the latest release section.
+2. **Transfer to Phone:** Move the file to your Android device (if downloaded via PC).
+3. **Enable Unknown Sources:** If prompted, allow your browser or file manager to install apps from unknown sources.
+4. **Install & Run:** Open the APK and follow the installation prompts.
+5. **ARCore Support:** Make sure your device supports Google Play Services for AR.
 
 ## The Team
-* **Emma:** Research & Documentation
-* **Sergi:** Filters & Cube Mechanics
-* **Xènia:** UI & Team Organisation
-* **Paula:** Content Collaboration
-* **Marina:** Level Design & Traffic Light Level script
+* **Emma:** Research & Documentation.
+* **Sergi:** Filters, Cube Mechanics, and project integration/linking in Unity.
+* **Xènia:** UI & Team Organisation.
+* **Paula:** Content Collaboration.
+* **Marina:** Level Design & Traffic Light Level script.
