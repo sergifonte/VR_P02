@@ -5,22 +5,22 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TITLE.unity
     guid: f92cb18aae2f00e44bf116d616b3296e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CAMERA.unity
     guid: 6e5d889b6ab0ca94fafe70032eceb053
   - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: 4755b35b590504809a7525fd2109c2e2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SELECT LEVELS.unity
     guid: 5d1d7b690b8d41a488d8d931000cfc16
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Level_Cubes.unity
     guid: f991e5ffc1a074f1a8f5ae9748eac39e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Level_TrafficLights.unity
     guid: b36de4b91c305144f9977f5d79852d80
   m_configObjects:

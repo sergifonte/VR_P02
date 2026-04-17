@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -25,30 +23,43 @@ public class ColorChange : MonoBehaviour
     public TextMeshProUGUI textLives;
     public GameObject panelGameOver;
     public TextMeshProUGUI textGameOverMessage;
-    public Button btnRetry;
-    public Button btnBack;
+    
+    [Header("Gameplay Buttons")] // <-- NOVES VARIABLES PER ALS BOTONS
+    public GameObject btnBrake;
+    public GameObject btnAccelerate;
 
     [Header("Game Setup")]
-    private int lives = 3;
-    private float timeRemaining = 30f;
-    private bool gameActive = true;
-    private bool actionTakenThisCycle = false;
+    private int lives;
+    private float timeRemaining;
+    private bool gameActive;
+    private bool actionTakenThisCycle;
 
-    void Start()
+    void OnEnable()
     {
         Time.timeScale = 1f;
-        rend = GetComponent<Renderer>();
+        lives = 3;
+        timeRemaining = 30f;
+        gameActive = true;
+        actionTakenThisCycle = false;
+
+        if (rend == null) rend = GetComponent<Renderer>();
 
         if (panelGameOver != null) panelGameOver.SetActive(false);
-
-        if (btnRetry != null) btnRetry.onClick.AddListener(RestartGame);
-        if (btnBack != null) btnBack.onClick.AddListener(() => SceneManager.LoadScene("MainScene"));
+        
+        // Assegurem que els botons de jugar estan actius al començar
+        if (btnBrake != null) btnBrake.SetActive(true);
+        if (btnAccelerate != null) btnAccelerate.SetActive(true);
 
         if (textInstructions != null)
             textInstructions.text = "Press GAS when you see the green light turn on, press BRAKE when you see the red light turn on.";
 
         UpdateLivesText();
         StartCoroutine(LightCycle());
+    }
+
+    void OnDisable()
+    {
+        StopAllCoroutines();
     }
 
     void Update()
@@ -71,7 +82,6 @@ public class ColorChange : MonoBehaviour
     {
         while (gameActive)
         {
-            // --- YELLOW STATE ---
             SetLight(LightState.Yellow);
             expectedAction = ExpectedAction.Brake;
             actionTakenThisCycle = false;
@@ -87,7 +97,6 @@ public class ColorChange : MonoBehaviour
 
             if (!gameActive) break;
 
-            // --- RED OR GREEN STATE ---
             bool goRed = Random.value > 0.5f;
 
             if (goRed)
@@ -190,6 +199,10 @@ public class ColorChange : MonoBehaviour
         if (textGameOverMessage != null) textGameOverMessage.text = "GAME OVER";
         if (textInstructions != null) textInstructions.text = "";
 
+        // Amaguem els botons de Gas i Fre
+        if (btnBrake != null) btnBrake.SetActive(false);
+        if (btnAccelerate != null) btnAccelerate.SetActive(false);
+
         if (panelGameOver != null) panelGameOver.SetActive(true);
     }
 
@@ -202,11 +215,9 @@ public class ColorChange : MonoBehaviour
         if (textGameOverMessage != null) textGameOverMessage.text = "YOU WIN!";
         if (textInstructions != null) textInstructions.text = "";
 
-        if (panelGameOver != null) panelGameOver.SetActive(true);
-    }
+        if (btnBrake != null) btnBrake.SetActive(false);
+        if (btnAccelerate != null) btnAccelerate.SetActive(false);
 
-    void RestartGame()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (panelGameOver != null) panelGameOver.SetActive(true);
     }
 }

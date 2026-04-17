@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class GameManagerAR : MonoBehaviour
 {
@@ -11,8 +10,6 @@ public class GameManagerAR : MonoBehaviour
     public TextMeshProUGUI textLives;
     public GameObject panelGameOver;
     public TextMeshProUGUI textGameOverMessage;
-    public Button btnRetry;
-    public Button btnBack;
 
     [Header("Game Setup")]
     public GameObject cubePrefab;
@@ -20,22 +17,46 @@ public class GameManagerAR : MonoBehaviour
     public Material[] cubeMaterials; 
     public string[] colorNames = { "RED", "YELLOW", "BLUE", "GREEN" };
 
-    private int lives = 3;
+    [Header("Spawn Settings")]
+    public float minSpawnRadius = 0.5f; // Distància mínima en metres
+    public float maxSpawnRadius = 1.2f; // Distància màxima en metres
+
+    private int lives;
     private int currentTargetColorID;
     private int cubesLeftOfTarget;
-    private List<int> colorsToAsk = new List<int> { 0, 1, 2, 3 }; 
+    private List<int> colorsToAsk; 
+    
+    // Llista per guardar els cubs i poder-los esborrar al reiniciar
+    private List<GameObject> activeCubes = new List<GameObject>();
 
-    void Start()
+    // Canviem Start per OnEnable perquè s'executi cada cop que obrim el nivell
+    void OnEnable()
     {
         Time.timeScale = 1f;
-
+        lives = 3;
+        colorsToAsk = new List<int> { 0, 1, 2, 3 };
+        
         panelGameOver.SetActive(false);
-        btnRetry.onClick.AddListener(RestartGame);
-        btnBack.onClick.AddListener(() => SceneManager.LoadScene("MainScene"));
 
+        ClearOldCubes(); // Netegem cubs d'una partida anterior si n'hi ha
         SpawnCubes();
         PickNextColor();
         UpdateUI();
+    }
+
+    // Quan sortim del nivell, netegem els cubs perquè no molestin al menú
+    void OnDisable()
+    {
+        ClearOldCubes();
+    }
+
+    void ClearOldCubes()
+    {
+        foreach (GameObject cube in activeCubes)
+        {
+            if (cube != null) Destroy(cube);
+        }
+        activeCubes.Clear();
     }
 
     void SpawnCubes()
@@ -43,7 +64,6 @@ public class GameManagerAR : MonoBehaviour
         List<int> colorPool = new List<int>();
         for (int i = 0; i < 4; i++) { colorPool.Add(i); colorPool.Add(i); colorPool.Add(i); }
 
-        // Barregem els colors aleatòriament perquè no surtin tots els verds junts
         for (int i = 0; i < colorPool.Count; i++)
         {
             int temp = colorPool[i];
@@ -52,34 +72,29 @@ public class GameManagerAR : MonoBehaviour
             colorPool[randomIndex] = temp;
         }
 
-        // Dividim els 360 graus al voltant del jugador entre els 12 cubs (30 graus per cub)
         float angleStep = 360f / 12f; 
 
         for (int i = 0; i < 12; i++)
         {
-            // Afegim una petita variació aleatòria a l'angle (+- 10 graus) perquè no sigui massa simètric
             float currentAngle = (i * angleStep) + Random.Range(-10f, 10f);
             
-            // Distància: entre 1 i 2.5 metres de tu
-            float radius = Random.Range(1.0f, 2.5f); 
+            // Aquí apliquem les noves variables de l'Inspector!
+            float radius = Random.Range(minSpawnRadius, maxSpawnRadius); 
 
-            // Matemàtiques per convertir l'angle i la distància en posicions X i Z
             float x = Mathf.Sin(currentAngle * Mathf.Deg2Rad) * radius;
             float z = Mathf.Cos(currentAngle * Mathf.Deg2Rad) * radius;
 
-            // La posició final (la Y es queda a 0 per tocar el terra)
             Vector3 spawnPos = spawnCenter.position + new Vector3(x, 0.1f, z);
-            
-            // Rotem el cub de forma aleatòria perquè quedi més natural
             Quaternion randomRot = Quaternion.Euler(0, Random.Range(0, 360), 0);
 
-            // Creem el cub
             GameObject newCube = Instantiate(cubePrefab, spawnPos, randomRot);
             
-            // Li assignem el color correcte
             int chosenColor = colorPool[i];
             newCube.GetComponent<Renderer>().material = cubeMaterials[chosenColor];
             newCube.GetComponent<CubeData>().colorID = chosenColor;
+            
+            // Guardem el cub a la nostra llista per tenir-lo controlat
+            activeCubes.Add(newCube);
         }
     }
 
@@ -103,7 +118,6 @@ public class GameManagerAR : MonoBehaviour
     {
         if (lives <= 0 || (cubesLeftOfTarget <= 0 && colorsToAsk.Count == 0)) return;
 
-        // Codi per fer clic amb el ratolí (ordinador) o amb el dit (mòbil)
         if (Input.GetMouseButtonDown(0)) 
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -119,6 +133,7 @@ public class GameManagerAR : MonoBehaviour
     {
         if (cube.colorID == currentTargetColorID)
         {
+            activeCubes.Remove(cube.gameObject); // El traiem de la llista
             Destroy(cube.gameObject);
             cubesLeftOfTarget--;
             
@@ -153,6 +168,4 @@ public class GameManagerAR : MonoBehaviour
         textInstructions.text = "";
         panelGameOver.SetActive(true);
     }
-
-    void RestartGame() { SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
 }
